@@ -163,6 +163,34 @@ jobs:
           --expected-version "$EXPECTED_VERSION"
           --expected-environment aws-eks
           --attempts 60 --delay 5
+      - name: Optional Ansible verification on manual runs
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ansible"
+          "$RUNNER_TEMP/ansible/bin/pip" install --disable-pip-version-check ansible-core==2.21.5
+          "$RUNNER_TEMP/ansible/bin/ansible-playbook" -i ansible/inventory.ini ansible/verify.yml \
+            -e "expected_sha=$GITHUB_SHA" -e "expected_version=$EXPECTED_VERSION" \
+            -e "expected_image=$IMAGE" -e "deployment_url=$PUBLIC_URL"
+      - name: Collect deployment evidence
+        run: |
+          mkdir -p "$RUNNER_TEMP/cloud-evidence"
+          aws eks describe-cluster --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION" \
+            --query 'cluster.{name:name,status:status,version:version,arn:arn,compute:computeConfig}' \
+            > "$RUNNER_TEMP/cloud-evidence/cluster.json"
+          kubectl -n "$K8S_NAMESPACE" get deployment,pods,service -o wide > "$RUNNER_TEMP/cloud-evidence/kubernetes.txt"
+          kubectl -n "$K8S_NAMESPACE" get deployment devops-dashboard -o json > "$RUNNER_TEMP/cloud-evidence/deployment.json"
+          kubectl -n "$K8S_NAMESPACE" get pods -o json > "$RUNNER_TEMP/cloud-evidence/pods.json"
+          kubectl -n "$K8S_NAMESPACE" get service devops-dashboard -o json > "$RUNNER_TEMP/cloud-evidence/service.json"
+          curl --fail --silent --show-error "$PUBLIC_URL/api/info" > "$RUNNER_TEMP/cloud-evidence/info.json"
+          curl --fail --silent --show-error "$PUBLIC_URL/actuator/health" > "$RUNNER_TEMP/cloud-evidence/health.json"
+          printf '%s\n' "$IMAGE" > "$RUNNER_TEMP/cloud-evidence/image.txt"
+          printf '%s\n' "$PUBLIC_URL" > "$RUNNER_TEMP/cloud-evidence/url.txt"
+      - name: Save cloud evidence
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: cloud-evidence
+          path: ${{ runner.temp }}/cloud-evidence/
+          retention-days: 14
       - name: Diagnostics on failure
         if: failure()
         run: |
