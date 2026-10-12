@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {
+      "Federated": "arn:aws:iam::906555057481:oidc-provider/token.actions.githubusercontent.com"
+    },
+    "Action": "sts:AssumeRoleWithWebIdentity",
+    "Condition": {
+      "StringEquals": {
+        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+        "token.actions.githubusercontent.com:sub": [
+          "repo:moksha3110@180270968/cia2-devops-dashboard@1415342471:ref:refs/heads/main",
+          "repo:moksha3110/cia2-devops-dashboard:ref:refs/heads/main"
+        ]
+      }
+    }
+  }]
+}

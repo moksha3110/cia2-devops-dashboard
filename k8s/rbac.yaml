@@ -1,0 +1,41 @@
+# One-time bootstrap by a cluster administrator, not by the CI/CD role.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: devops-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: github-deployer
+  namespace: devops-dashboard
+rules:
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [get, list, watch, create, update, patch]
+  - apiGroups: [apps]
+    resources: [replicasets]
+    verbs: [get, list, watch]
+  - apiGroups: ['']
+    resources: [services]
+    verbs: [get, list, watch, create, update, patch]
+  - apiGroups: ['']
+    resources: [pods, events, endpoints]
+    verbs: [get, list, watch]
+  - apiGroups: ['']
+    resources: [pods/log]
+    verbs: [get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: github-deployer
+  namespace: devops-dashboard
+subjects:
+  - kind: Group
+    name: github-deployer
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: github-deployer
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,185 @@
+---
+- name: Verify the dashboard deployment without changing cluster resources
+  hosts: verification
+  gather_facts: false
+  vars:
+    kube_context: cia2-eks
+    k8s_namespace: devops-dashboard
+    deployment_name: devops-dashboard
+    expected_sha: ''
+    expected_version: ''
+    expected_image: ''
+    deployment_url: ''
+  tasks:
+    - name: Wait for the Kubernetes rollout
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - --context
+          - '{{ kube_context }}'
+          - --namespace
+          - '{{ k8s_namespace }}'
+          - rollout
+          - status
+          - deployment/{{ deployment_name }}
+          - --timeout=300s
+      changed_when: false
+
+    - name: Read the Deployment
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - --context
+          - '{{ kube_context }}'
+          - --namespace
+          - '{{ k8s_namespace }}'
+          - get
+          - deployment
+          - '{{ deployment_name }}'
+          - -o
+          - json
+      register: deployment_result
+      changed_when: false
+
+    - name: Decode the Deployment
+      ansible.builtin.set_fact:
+        deployment_info: '{{ deployment_result.stdout | from_json }}'
+
+    - name: Confirm both replicas are updated and available
+      ansible.builtin.assert:
+        that:
+          - deployment_info.spec.replicas == 2
+          - deployment_info.status.updatedReplicas | default(0) == 2
+          - deployment_info.status.readyReplicas | default(0) == 2
+          - deployment_info.status.availableReplicas | default(0) == 2
+          - >-
+            expected_image | length == 0 or
+            (deployment_info.spec.template.spec.containers |
+            selectattr('name', 'equalto', 'devops-dashboard') | first).image == expected_image
+
+    - name: Read application pods
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - --context
+          - '{{ kube_context }}'
+          - --namespace
+          - '{{ k8s_namespace }}'
+          - get
+          - pods
+          - -l
+          - app.kubernetes.io/name=devops-dashboard
+          - -o
+          - json
+      register: pod_result
+      changed_when: false
+
+    - name: Select active pods without terminating replicas
+      ansible.builtin.set_fact:
+        active_pods: >-
+          {{ (pod_result.stdout | from_json)['items'] |
+          rejectattr('metadata.deletionTimestamp', 'defined') | list }}
+
+    - name: Confirm two active pods
+      ansible.builtin.assert:
+        that:
+          - active_pods | length == 2
+
+    - name: Confirm each active pod is ready and uses the deployment image
+      ansible.builtin.assert:
+        that:
+          - item.status.phase == 'Running'
+          - >-
+            item.status.conditions | selectattr('type', 'equalto', 'Ready') |
+            selectattr('status', 'equalto', 'True') | list | length == 1
+          - >-
+            (item.spec.containers | selectattr('name', 'equalto', 'devops-dashboard') | first).image ==
+            (deployment_info.spec.template.spec.containers |
+            selectattr('name', 'equalto', 'devops-dashboard') | first).image
+      loop: '{{ active_pods }}'
+      loop_control:
+        label: '{{ item.metadata.name }}'
+
+    - name: Read the LoadBalancer Service
+      ansible.builtin.command:
+        argv:
+          - kubectl
+          - --context
+          - '{{ kube_context }}'
+          - --namespace
+          - '{{ k8s_namespace }}'
+          - get
+          - service
+          - '{{ deployment_name }}'
+          - -o
+          - json
+      register: service_result
+      changed_when: false
+      until: >-
+        service_result.rc == 0 and
+        ((service_result.stdout | from_json).status.loadBalancer.ingress |
+        default([]) | length > 0)
+      retries: 60
+      delay: 10
+
+    - name: Decode the Service
+      ansible.builtin.set_fact:
+        service_info: '{{ service_result.stdout | from_json }}'
+
+    - name: Resolve public URL
+      ansible.builtin.set_fact:
+        public_url: >-
+          {{ deployment_url if deployment_url | length > 0 else
+          'http://' + (service_info.status.loadBalancer.ingress[0].hostname |
+          default(service_info.status.loadBalancer.ingress[0].ip | default(''))) }}
+
+    - name: Verify public application health
+      ansible.builtin.uri:
+        url: '{{ public_url }}/actuator/health'
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: 10
+        headers:
+          Accept: application/json
+      register: health_response
+      until: health_response.status == 200 and health_response.json.status | default('') == 'UP'
+      retries: 30
+      delay: 5
+
+    - name: Read public deployment metadata
+      ansible.builtin.uri:
+        url: '{{ public_url }}/api/info'
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: 10
+      register: info_response
+
+    - name: Check deployment identity
+      ansible.builtin.assert:
+        that:
+          - info_response.json.environment == 'aws-eks'
+          - info_response.json.name | length > 0
+          - info_response.json.message | length > 0
+          - expected_sha | length == 0 or info_response.json.commitSha | default('') == expected_sha
+          - expected_version | length == 0 or info_response.json.version == expected_version
+
+    - name: Verify the public HTML dashboard
+      ansible.builtin.uri:
+        url: '{{ public_url }}/'
+        method: GET
+        status_code: 200
+        return_content: true
+        timeout: 10
+      register: dashboard_response
+
+    - name: Confirm dashboard content
+      ansible.builtin.assert:
+        that:
+          - dashboard_response.content_type is match('^text/html')
+          - "'<html' in dashboard_response.content | lower"
+
+    - name: Report verification
+      ansible.builtin.debug:
+        msg: 'Verified two ready replicas, health UP, and dashboard at {{ public_url }}'

@@ -1,0 +1,61 @@
+:root {
+    color-scheme: dark;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #edf4f2;
+    background: #0c1518;
+    font-synthesis: none;
+    --muted: #a5b8bc;
+    --accent: #8aebba;
+    --border: #2b3c42;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: radial-gradient(ellipse at 85% 15%, #15312d 0, transparent 45%); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.shell { max-width: 1080px; padding: 0 32px; margin: auto; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 0; border-bottom: 1px solid var(--border); }
+.brand { color: #edf4f2; font-size: 12px; font-weight: 700; letter-spacing: .1em; display: flex; align-items: center; gap: 12px; }
+.brand-icon { background: var(--accent); color: #0c1518; padding: 9px; border-radius: 8px; font-family: monospace; font-size: 17px; }
+.project-label, .eyebrow { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+.project-label { color: var(--muted); }
+.intro { padding: 52px 0 28px; }
+h1 { font-size: clamp(36px, 6vw, 62px); line-height: 1.08; letter-spacing: -.045em; margin: 17px 0; }
+h1 span { color: var(--accent); }
+.subtitle, .pipeline-note { color: var(--muted); line-height: 1.6; }
+.release-card { background: #142126; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+.release-top { padding: 22px 28px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+h2 { font-size: 15px; margin: 0; font-weight: 600; }
+.health { color: #e5d28a; background: #363222; border: 1px solid #6e643b; border-radius: 30px; padding: 7px 12px; font-size: 12px; }
+.health.up { color: #a1f3c7; background: #1b382c; border-color: #355b46; }
+.health.down { color: #ffb5b5; background: #40292c; border-color: #754348; }
+.release-body { padding: 28px; }
+.app-name { color: var(--muted); font-size: 14px; margin: 0; }
+.version { color: var(--accent); font-size: 64px; font-weight: 700; letter-spacing: -.04em; margin: 6px 0; overflow-wrap: anywhere; }
+.message { font-size: 18px; line-height: 1.6; margin: 4px 0; overflow-wrap: anywhere; }
+.metadata { display: grid; grid-template-columns: 1fr 2fr 1fr; margin: 0; padding: 20px 28px; gap: 20px; border-top: 1px solid var(--border); background: #101c20; }
+dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 8px; }
+dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+code { font-size: 12px; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 14px 0 32px; }
+.toolbar p { color: var(--muted); font-size: 12px; line-height: 1.6; }
+button { background: #20342e; color: var(--accent); border: 1px solid #456653; border-radius: 8px; padding: 11px 16px; cursor: pointer; white-space: nowrap; font: inherit; font-size: 12px; }
+button:hover { background: #2b483b; }
+button:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.pipeline { padding: 24px 0 32px; }
+.pipeline-note { font-size: 12px; }
+.stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0; list-style: none; margin: 20px 0 0; }
+.stages li { border: 1px solid var(--border); border-radius: 10px; padding: 18px 14px; font-size: 13px; }
+.stages span { display: block; font-family: monospace; font-size: 11px; color: var(--accent); margin-bottom: 12px; }
+footer { border-top: 1px solid var(--border); display: flex; justify-content: space-between; gap: 16px; padding: 22px 0 32px; font-size: 11px; color: var(--muted); }
+.noscript { color: #e5d28a; }
+@media (max-width: 640px) {
+    .shell { padding: 0 18px; }
+    .project-label { display: none; }
+    .intro { padding-top: 32px; }
+    .release-top, .release-body, .metadata { padding: 20px; }
+    .metadata { grid-template-columns: 1fr; }
+    .stages { grid-template-columns: repeat(2, 1fr); }
+    .toolbar { align-items: flex-start; }
+    footer { flex-direction: column; }
+}

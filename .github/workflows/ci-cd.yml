@@ -1,0 +1,170 @@
+name: Java CI and AWS EKS CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Serialize runs on a branch so a running rollout is not cancelled mid-update.
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Compile, test, and package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Java 21
+        uses: actions/setup-java@v6.0.1
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Compile, run tests, and package
+        run: sh ./mvnw --batch-mode --no-transfer-progress clean verify
+      - name: Save JUnit reports
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: junit-reports
+          path: target/surefire-reports/
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Save executable JAR
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: application-jar
+          path: target/devops-dashboard.jar
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    name: Build and publish SHA-tagged image
+    needs: ci
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.tag }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout tested commit
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Compute lowercase GHCR image reference
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: echo "tag=ghcr.io/${REPOSITORY,,}:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4.4.1
+      - name: Log in to GHCR
+        uses: docker/login-action@v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build from source, test, and publish
+        id: build
+        uses: docker/build-push-action@v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.image.outputs.tag }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=CIA 2 DevOps Deployment Dashboard
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Record published image
+        env:
+          IMAGE: ${{ steps.image.outputs.tag }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          printf 'Published image: `%s@%s`\n' "$IMAGE" "$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    name: Deploy and verify on AWS EKS
+    needs: publish
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'ap-south-1' }}
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID || '906555057481' }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME || 'cia2-devops-dashboard' }}
+      GHCR_PULL_SECRET: ${{ vars.GHCR_PULL_SECRET }}
+      IMAGE: ${{ needs.publish.outputs.image }}@${{ needs.publish.outputs.digest }}
+      K8S_NAMESPACE: devops-dashboard
+    steps:
+      - name: Checkout deployment files
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate deployment settings
+        run: |
+          test -n "$AWS_ROLE_ARN" || { echo 'Set AWS_ROLE_ARN before enabling deployment.' >&2; exit 1; }
+          [[ "$IMAGE" =~ ^ghcr.io/.+:[0-9a-f]{40}@sha256:[0-9a-f]{64}$ ]] || { echo 'Missing immutable image reference.' >&2; exit 1; }
+      - name: Assume AWS role using GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: ${{ env.AWS_ACCOUNT_ID }}
+          role-session-name: github-${{ github.run_id }}
+          role-duration-seconds: 3600
+      - name: Install kubectl matching cluster minor version
+        run: |
+          set -euo pipefail
+          minor=$(aws eks describe-cluster --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION" --query 'cluster.version' --output text)
+          [[ "$minor" =~ ^1\.[0-9]+$ ]] || { echo 'Invalid cluster version.' >&2; exit 1; }
+          version=$(curl --fail --silent --show-error --location --retry 3 "https://dl.k8s.io/release/stable-${minor}.txt")
+          curl --fail --silent --show-error --location --retry 3 "https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl" -o "$RUNNER_TEMP/kubectl"
+          curl --fail --silent --show-error --location --retry 3 "https://dl.k8s.io/release/${version}/bin/linux/amd64/kubectl.sha256" -o "$RUNNER_TEMP/kubectl.sha256"
+          expected=$(cat "$RUNNER_TEMP/kubectl.sha256")
+          printf '%s  %s\n' "$expected" "$RUNNER_TEMP/kubectl" | sha256sum --check
+          chmod +x "$RUNNER_TEMP/kubectl"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Connect to existing EKS cluster
+        run: aws eks update-kubeconfig --name "$EKS_CLUSTER_NAME" --region "$AWS_REGION" --alias cia2-eks
+      - name: Deploy published image and verify rollout
+        run: bash scripts/deploy.sh
+      - name: Verify public HTTP health, HTML, and commit SHA
+        run: >-
+          python3 scripts/verify-deployment.py
+          --url "$PUBLIC_URL"
+          --expected-sha "$GITHUB_SHA"
+          --expected-version "$EXPECTED_VERSION"
+          --expected-environment aws-eks
+          --attempts 60 --delay 5
+      - name: Diagnostics on failure
+        if: failure()
+        run: |
+          kubectl -n "$K8S_NAMESPACE" get deployments,pods,services -o wide || true
+          kubectl -n "$K8S_NAMESPACE" get events --sort-by=.lastTimestamp || true

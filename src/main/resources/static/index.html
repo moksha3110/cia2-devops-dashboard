@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Live application metadata for a cloud CI/CD deployment demonstration.">
+    <title>DevOps Deployment Dashboard</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/dashboard.js" defer></script>
+</head>
+<body>
+<div class="shell">
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Dashboard home"><span class="brand-icon" aria-hidden="true">&gt;_</span> DEPLOY / DASHBOARD</a>
+        <span class="project-label">CLOUD CI/CD LAB</span>
+    </header>
+    <main>
+        <div class="intro">
+            <p class="eyebrow">FROM COMMIT TO CLOUD</p>
+            <h1>Your deployment,<br><span>at a glance.</span></h1>
+            <p class="subtitle">Live application information for an end-to-end delivery pipeline.</p>
+        </div>
+        <section class="release-card" aria-labelledby="release-heading">
+            <div class="release-top">
+                <h2 id="release-heading">Current release</h2>
+                <span id="health" class="health" role="status">Checking health…</span>
+            </div>
+            <div class="release-body" aria-live="polite">
+                <p id="app-name" class="app-name">DevOps Deployment Dashboard</p>
+                <p id="version" class="version">—</p>
+                <p id="message" class="message">Loading deployment metadata…</p>
+            </div>
+            <dl class="metadata">
+                <div><dt>Environment</dt><dd id="environment">—</dd></div>
+                <div><dt>Commit SHA</dt><dd><code id="commit-sha">Not provided</code></dd></div>
+                <div><dt>Last checked</dt><dd id="last-checked">—</dd></div>
+            </dl>
+        </section>
+        <div class="toolbar">
+            <p id="feedback" role="status">Metadata refreshes every 30 seconds.</p>
+            <button id="refresh" type="button">Refresh status <span aria-hidden="true">↻</span></button>
+        </div>
+        <section class="pipeline" aria-labelledby="pipeline-heading">
+            <h2 id="pipeline-heading">Delivery path</h2>
+            <p class="pipeline-note">Delivery stages. Live workflow results are available in GitHub Actions.</p>
+            <ol class="stages">
+                <li><span>01</span>Git push</li>
+                <li><span>02</span>Build &amp; test</li>
+                <li><span>03</span>Publish to GHCR</li>
+                <li><span>04</span>Deploy to EKS</li>
+            </ol>
+        </section>
+        <noscript><p class="noscript">Enable JavaScript to load deployment information, or open <a href="/api/info">/api/info</a>.</p></noscript>
+    </main>
+    <footer><span>Java 21 · Spring Boot · Kubernetes</span><a href="/actuator/health">Health JSON ↗</a></footer>
+</div>
+</body>
+</html>

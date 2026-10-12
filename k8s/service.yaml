@@ -1,0 +1,24 @@
+# Default target: EKS Auto Mode, which manages its NLB integration.
+# Standard EKS needs AWS Load Balancer Controller and a different class; see docs.
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-dashboard
+  namespace: devops-dashboard
+  labels:
+    app.kubernetes.io/name: devops-dashboard
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: HTTP
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: /actuator/health/readiness
+spec:
+  type: LoadBalancer
+  loadBalancerClass: eks.amazonaws.com/nlb
+  selector:
+    app.kubernetes.io/name: devops-dashboard
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

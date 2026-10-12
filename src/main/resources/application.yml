@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: devops-dashboard
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-store: true
+
+server:
+  port: 8080
+  shutdown: graceful
+
+deployment:
+  name: ${APP_NAME:DevOps Deployment Dashboard}
+  version: ${APP_VERSION:v1}
+  environment: ${APP_ENVIRONMENT:local}
+  message: ${DEPLOYMENT_MESSAGE:Version 1 is running. Ready for the next deployment!}
+  commit-sha: ${COMMIT_SHA:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
