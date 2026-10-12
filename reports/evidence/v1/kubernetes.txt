@@ -1,0 +1,9 @@
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS         IMAGES                                                                                                                                                      SELECTOR
+deployment.apps/devops-dashboard   2/2     2            2           6m9s   devops-dashboard   ghcr.io/moksha3110/cia2-devops-dashboard:10eddd2d8f4bbe0fe77c84feb1353485590d3171@sha256:10076256b47c779a9330a42c83bb264055c5e74cf4021743b2689b3699f15111   app.kubernetes.io/name=devops-dashboard
+
+NAME                                    READY   STATUS    RESTARTS   AGE     IP            NODE                  NOMINATED NODE   READINESS GATES
+pod/devops-dashboard-6b697f5586-q6m9n   1/1     Running   0          6m10s   10.42.5.211   i-0c13f4eabd19de788   <none>           <none>
+pod/devops-dashboard-6b697f5586-tm6p9   1/1     Running   0          6m10s   10.42.5.210   i-0c13f4eabd19de788   <none>           <none>
+
+NAME                       TYPE           CLUSTER-IP      EXTERNAL-IP                                                                      PORT(S)        AGE     SELECTOR
+service/devops-dashboard   LoadBalancer   172.20.139.28   k8s-devopsda-devopsda-fb98dd518c-5089fdf68ed45b95.elb.ap-south-1.amazonaws.com   80:32719/TCP   6m10s   app.kubernetes.io/name=devops-dashboard

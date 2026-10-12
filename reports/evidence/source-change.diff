@@ -1,0 +1,37 @@
+﻿commit ff59e4b8600af134c1f1c20a47370d6045e56efe
+Author: moksha3110 <moksha3110@users.noreply.github.com>
+Date:   Mon Oct 12 14:56:36 2026 +0530
+
+    Demonstrate automatic v2 redeployment from a Git push
+
+diff --git a/k8s/deployment.yaml b/k8s/deployment.yaml
+index 454483b..bc71ce1 100644
+--- a/k8s/deployment.yaml
++++ b/k8s/deployment.yaml
+@@ -56,11 +56,11 @@ spec:
+             - name: APP_NAME
+               value: DevOps Deployment Dashboard
+             - name: APP_VERSION
+-              value: v1
++              value: v2
+             - name: APP_ENVIRONMENT
+               value: aws-eks
+             - name: DEPLOYMENT_MESSAGE
+-              value: CIA 2 version 1 is running on AWS EKS.
++              value: CIA 2 version 2 arrived automatically through the CI/CD pipeline!
+             - name: COMMIT_SHA
+               value: supplied-by-workflow
+           resources:
+diff --git a/src/main/resources/static/index.html b/src/main/resources/static/index.html
+index 83c3cc4..72cad73 100644
+--- a/src/main/resources/static/index.html
++++ b/src/main/resources/static/index.html
+@@ -18,7 +18,7 @@
+         <div class="intro">
+             <p class="eyebrow">FROM COMMIT TO CLOUD</p>
+             <h1>Your deployment,<br><span>at a glance.</span></h1>
+-            <p class="subtitle">Live application information for an end-to-end delivery pipeline.</p>
++            <p class="subtitle">Automatically built, tested, and deployed from GitHub to AWS.</p>
+         </div>
+         <section class="release-card" aria-labelledby="release-heading">
+             <div class="release-top">

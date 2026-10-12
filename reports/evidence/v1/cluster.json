@@ -1,0 +1,14 @@
+{
+    "name": "cia2-devops-dashboard",
+    "status": "ACTIVE",
+    "version": "1.36",
+    "arn": "arn:aws:eks:ap-south-1:906555057481:cluster/cia2-devops-dashboard",
+    "compute": {
+        "enabled": true,
+        "nodePools": [
+            "general-purpose",
+            "system"
+        ],
+        "nodeRoleArn": "arn:aws:iam::906555057481:role/cia2-eks-NodeRole-XTxSlb5JWyP0"
+    }
+}

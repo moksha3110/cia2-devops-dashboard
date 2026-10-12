@@ -5,3 +5,6 @@ mvnw text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 mvnw.cmd text eol=crlf
+*.pdf binary
+*.docx binary
+*.png binary

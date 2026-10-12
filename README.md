@@ -6,7 +6,11 @@ This Spring Boot application displays deployment metadata so that a change from 
 
 **Pipeline:** Git push → Java compilation/tests/package → Docker build → SHA-tagged GHCR publication → AWS EKS rolling deployment → public HTTP verification.
 
-The code and configuration are implemented. End-to-end cloud execution still requires GitHub/AWS setup and approval; local success is not cloud-deployment evidence.
+The application is deployed on AWS EKS. CI, GHCR publication, OIDC authentication, two-replica rollout, public HTTP verification, and optional Ansible verification have passed. See the [technical report](reports/CIA2-Technical-Report.pdf) and [recorded evidence](reports/evidence/) for the v1-to-v2 demonstration.
+
+Live dashboard: <http://k8s-devopsda-devopsda-fb98dd518c-5089fdf68ed45b95.elb.ap-south-1.amazonaws.com>.
+
+Submission report: [PDF](reports/CIA2-Technical-Report.pdf), [editable Word](reports/CIA2-Technical-Report.docx), and [Markdown](reports/CIA2-Technical-Report.md). AWS resources incur charges while retained; follow the cleanup guide after assessment.
 
 ## Project layout
 
@@ -149,7 +153,8 @@ Refresh the dashboard to see `v2` and the new message. Environment variables are
 - GitHub Actions workflow validation passed with actionlint v1.7.12. Bash syntax and Ansible syntax (ansible-core 2.21.5 on Linux) passed.
 - Local kubectl rendering verified the exact SHA-tag/digest reference, commit metadata, and optional image-pull secret. No cluster was contacted for rendering.
 - The Python HTTP verifier passed against local v1/v2 containers and rejected an intentionally wrong version. The v2 container also passed with a read-only filesystem, dropped capabilities, and UID/GID 10001. This was a local container check, not a cloud redeployment.
-- No image publication or cloud deployment has been performed. No paid resources have been created.
+- Live AWS validation passed: stack `cia2-eks` completed, cluster became ACTIVE, GHCR images were published, OIDC authentication succeeded, and two ready replicas served public HTTP with matching commit metadata.
+- Manual verification run `38228883729` passed Ansible: 17 checks, changed=0, unreachable=0, failed=0. The explicitly approved temporary cluster-admin grant was removed after namespace bootstrap.
 
 The verified local dashboard is available at <http://localhost:8080> while `javaweb-dashboard-local` is running. Its name differs from the example container above. To stop that specific verification container:
 

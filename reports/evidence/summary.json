@@ -1,0 +1,11 @@
+{
+  "url": "http://k8s-devopsda-devopsda-fb98dd518c-5089fdf68ed45b95.elb.ap-south-1.amazonaws.com",
+  "v1_sha": "10eddd2d8f4bbe0fe77c84feb1353485590d3171",
+  "v2_sha": "9a7d68992241ddca2566847172bc14dd905a833a",
+  "v1_run_url": "https://github.com/moksha3110/cia2-devops-dashboard/actions/runs/38228883729",
+  "v2_run_url": "https://github.com/moksha3110/cia2-devops-dashboard/actions/runs/38230049122",
+  "v2_result": "Push-triggered run succeeded; 2/2 replicas ready; public health UP and commit SHA matched.",
+  "test_result": "8 tests, 0 failures, 0 errors, 0 skipped (downloaded GitHub JUnit XML).",
+  "ansible_result": "17 checks passed; changed=0, unreachable=0, failed=0.",
+  "v2_image": "ghcr.io/moksha3110/cia2-devops-dashboard:9a7d68992241ddca2566847172bc14dd905a833a@sha256:7672635888422e44fd6ae6416a7e116d4e6976f9718f69301bdacb9f970829ec"
+}

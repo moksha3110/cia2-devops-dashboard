@@ -15,7 +15,7 @@
 
 The repository and cluster names are proposed names, not proof that remote resources exist. Region is configurable if an existing cluster is elsewhere.
 
-On 12 October 2026, the user approved creating the cluster and supporting billable resources. CloudFormation stack `cia2-eks` was submitted in Mumbai using [infra/eks.yaml](../infra/eks.yaml). Check the live stack status before assuming it is ready. GitHub publication and application deployment remain pending.
+On 12 October 2026, the user approved creating billable infrastructure, publishing the repository and deploying the application. CloudFormation stack `cia2-eks` reached CREATE_COMPLETE in Mumbai using [infra/eks.yaml](../infra/eks.yaml), and the cluster reached ACTIVE. GitHub publication, OIDC deployment, public HTTP verification and Ansible verification passed. Historical records and screenshots are under `reports/evidence/`; check live state separately when demonstrating.
 
 The template creates a dedicated VPC with two public subnets, an internet gateway, EKS Auto Mode on Kubernetes 1.36 (standard support at creation), infrastructure roles, and a separate Kubernetes administrator role. Public-IP assignment provides worker egress without a NAT gateway. Security groups control inbound access; there is no SSH access configured. This is a short-lived demonstration topology. The public Kubernetes API requires authenticated and authorized requests. The template selects standard support to avoid opting into extended-support pricing.
 
@@ -270,4 +270,4 @@ After collecting evidence, disable `DEPLOY_ENABLED`. With approval, delete the a
 
 ## Verification limits
 
-The Java tests and local Docker execution were verified. Workflow/schema/syntax checks are recorded in README after running them. **AWS setup, OIDC role assumption in Actions, GHCR publication, EKS rollout, NLB provisioning, public-cloud HTTP checks, rollback, and live Ansible verification have not been executed.** Static validation cannot prove IAM, network, quota, or controller configuration. Collect the [evidence checklist](evidence-checklist.md) as these steps are performed.
+The Java tests, Docker execution, workflow/schema/syntax checks, AWS infrastructure creation, GitHub OIDC role assumption, GHCR publication, EKS rollout, NLB provisioning, public HTTP checks and live Ansible verification passed. Ansible reported 17 successful checks and no changes/failures. The root session could not assume the administrator role, so the user explicitly approved a temporary GitHub cluster-admin access policy for bootstrap. That policy and the one-time bootstrap workflow were removed immediately after success. The ongoing role uses namespace RBAC. Local kubeconfig administrator-role authentication still requires a non-root IAM identity authorized to assume that role; root login is not sufficient. Rollback, load/failure testing, cleanup and private-registry mode remain untested.

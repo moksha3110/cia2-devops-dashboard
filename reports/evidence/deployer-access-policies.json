@@ -1,0 +1,5 @@
+﻿{
+    "associatedAccessPolicies": [],
+    "clusterName": "cia2-devops-dashboard",
+    "principalArn": "arn:aws:iam::906555057481:role/cia2-github-deployer"
+}

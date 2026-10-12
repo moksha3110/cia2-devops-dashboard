@@ -1,0 +1,206 @@
+{
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+        "annotations": {
+            "deployment.kubernetes.io/revision": "4",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"devops-dashboard\"},\"name\":\"devops-dashboard\",\"namespace\":\"devops-dashboard\"},\"spec\":{\"minReadySeconds\":10,\"progressDeadlineSeconds\":300,\"replicas\":2,\"revisionHistoryLimit\":3,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"devops-dashboard\"}},\"strategy\":{\"rollingUpdate\":{\"maxSurge\":1,\"maxUnavailable\":0},\"type\":\"RollingUpdate\"},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"devops-dashboard\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"env\":[{\"name\":\"APP_NAME\",\"value\":\"DevOps Deployment Dashboard\"},{\"name\":\"APP_VERSION\",\"value\":\"v2\"},{\"name\":\"APP_ENVIRONMENT\",\"value\":\"aws-eks\"},{\"name\":\"DEPLOYMENT_MESSAGE\",\"value\":\"CIA 2 version 2 arrived automatically through the CI/CD pipeline!\"},{\"name\":\"COMMIT_SHA\",\"value\":\"9a7d68992241ddca2566847172bc14dd905a833a\"}],\"image\":\"ghcr.io/moksha3110/cia2-devops-dashboard:9a7d68992241ddca2566847172bc14dd905a833a@sha256:7672635888422e44fd6ae6416a7e116d4e6976f9718f69301bdacb9f970829ec\",\"imagePullPolicy\":\"IfNotPresent\",\"livenessProbe\":{\"failureThreshold\":3,\"httpGet\":{\"path\":\"/actuator/health/liveness\",\"port\":\"http\"},\"periodSeconds\":15,\"timeoutSeconds\":3},\"name\":\"devops-dashboard\",\"ports\":[{\"containerPort\":8080,\"name\":\"http\"}],\"readinessProbe\":{\"failureThreshold\":3,\"httpGet\":{\"path\":\"/actuator/health/readiness\",\"port\":\"http\"},\"periodSeconds\":5,\"timeoutSeconds\":3},\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"512Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"256Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"readOnlyRootFilesystem\":true},\"startupProbe\":{\"failureThreshold\":30,\"httpGet\":{\"path\":\"/actuator/health/liveness\",\"port\":\"http\"},\"periodSeconds\":5,\"timeoutSeconds\":3},\"volumeMounts\":[{\"mountPath\":\"/tmp\",\"name\":\"temporary-files\"}]}],\"nodeSelector\":{\"kubernetes.io/arch\":\"amd64\"},\"securityContext\":{\"fsGroup\":10001,\"fsGroupChangePolicy\":\"OnRootMismatch\",\"runAsGroup\":10001,\"runAsNonRoot\":true,\"runAsUser\":10001,\"seccompProfile\":{\"type\":\"RuntimeDefault\"}},\"terminationGracePeriodSeconds\":45,\"topologySpreadConstraints\":[{\"labelSelector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"devops-dashboard\"}},\"maxSkew\":1,\"topologyKey\":\"kubernetes.io/hostname\",\"whenUnsatisfiable\":\"ScheduleAnyway\"}],\"volumes\":[{\"emptyDir\":{\"sizeLimit\":\"64Mi\"},\"name\":\"temporary-files\"}]}}},\"status\":{}}\n"
+        },
+        "creationTimestamp": "2026-10-12T09:18:14Z",
+        "generation": 4,
+        "labels": {
+            "app.kubernetes.io/name": "devops-dashboard"
+        },
+        "name": "devops-dashboard",
+        "namespace": "devops-dashboard",
+        "resourceVersion": "9274",
+        "uid": "e39e5b80-f6ec-4517-99d8-ce3c3cdb47cc"
+    },
+    "spec": {
+        "minReadySeconds": 10,
+        "progressDeadlineSeconds": 300,
+        "replicas": 2,
+        "revisionHistoryLimit": 3,
+        "selector": {
+            "matchLabels": {
+                "app.kubernetes.io/name": "devops-dashboard"
+            }
+        },
+        "strategy": {
+            "rollingUpdate": {
+                "maxSurge": 1,
+                "maxUnavailable": 0
+            },
+            "type": "RollingUpdate"
+        },
+        "template": {
+            "metadata": {
+                "labels": {
+                    "app.kubernetes.io/name": "devops-dashboard"
+                }
+            },
+            "spec": {
+                "automountServiceAccountToken": false,
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "APP_NAME",
+                                "value": "DevOps Deployment Dashboard"
+                            },
+                            {
+                                "name": "APP_VERSION",
+                                "value": "v2"
+                            },
+                            {
+                                "name": "APP_ENVIRONMENT",
+                                "value": "aws-eks"
+                            },
+                            {
+                                "name": "DEPLOYMENT_MESSAGE",
+                                "value": "CIA 2 version 2 arrived automatically through the CI/CD pipeline!"
+                            },
+                            {
+                                "name": "COMMIT_SHA",
+                                "value": "9a7d68992241ddca2566847172bc14dd905a833a"
+                            }
+                        ],
+                        "image": "ghcr.io/moksha3110/cia2-devops-dashboard:9a7d68992241ddca2566847172bc14dd905a833a@sha256:7672635888422e44fd6ae6416a7e116d4e6976f9718f69301bdacb9f970829ec",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/actuator/health/liveness",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 15,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "name": "devops-dashboard",
+                        "ports": [
+                            {
+                                "containerPort": 8080,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/actuator/health/readiness",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "500m",
+                                "memory": "512Mi"
+                            },
+                            "requests": {
+                                "cpu": "100m",
+                                "memory": "256Mi"
+                            }
+                        },
+                        "securityContext": {
+                            "allowPrivilegeEscalation": false,
+                            "capabilities": {
+                                "drop": [
+                                    "ALL"
+                                ]
+                            },
+                            "readOnlyRootFilesystem": true
+                        },
+                        "startupProbe": {
+                            "failureThreshold": 30,
+                            "httpGet": {
+                                "path": "/actuator/health/liveness",
+                                "port": "http",
+                                "scheme": "HTTP"
+                            },
+                            "periodSeconds": 5,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 3
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/tmp",
+                                "name": "temporary-files"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "nodeSelector": {
+                    "kubernetes.io/arch": "amd64"
+                },
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {
+                    "fsGroup": 10001,
+                    "fsGroupChangePolicy": "OnRootMismatch",
+                    "runAsGroup": 10001,
+                    "runAsNonRoot": true,
+                    "runAsUser": 10001,
+                    "seccompProfile": {
+                        "type": "RuntimeDefault"
+                    }
+                },
+                "terminationGracePeriodSeconds": 45,
+                "topologySpreadConstraints": [
+                    {
+                        "labelSelector": {
+                            "matchLabels": {
+                                "app.kubernetes.io/name": "devops-dashboard"
+                            }
+                        },
+                        "maxSkew": 1,
+                        "topologyKey": "kubernetes.io/hostname",
+                        "whenUnsatisfiable": "ScheduleAnyway"
+                    }
+                ],
+                "volumes": [
+                    {
+                        "emptyDir": {
+                            "sizeLimit": "64Mi"
+                        },
+                        "name": "temporary-files"
+                    }
+                ]
+            }
+        }
+    },
+    "status": {
+        "availableReplicas": 2,
+        "conditions": [
+            {
+                "lastTransitionTime": "2026-10-12T09:19:26Z",
+                "lastUpdateTime": "2026-10-12T09:19:26Z",
+                "message": "Deployment has minimum availability.",
+                "reason": "MinimumReplicasAvailable",
+                "status": "True",
+                "type": "Available"
+            },
+            {
+                "lastTransitionTime": "2026-10-12T09:18:14Z",
+                "lastUpdateTime": "2026-10-12T09:33:14Z",
+                "message": "ReplicaSet \"devops-dashboard-7898955bcc\" has successfully progressed.",
+                "reason": "NewReplicaSetAvailable",
+                "status": "True",
+                "type": "Progressing"
+            }
+        ],
+        "observedGeneration": 4,
+        "readyReplicas": 2,
+        "replicas": 2,
+        "terminatingReplicas": 0,
+        "updatedReplicas": 2
+    }
+}

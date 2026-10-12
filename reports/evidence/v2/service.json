@@ -1,0 +1,62 @@
+{
+    "apiVersion": "v1",
+    "kind": "Service",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{\"service.beta.kubernetes.io/aws-load-balancer-attributes\":\"load_balancing.cross_zone.enabled=true\",\"service.beta.kubernetes.io/aws-load-balancer-healthcheck-path\":\"/actuator/health/readiness\",\"service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol\":\"HTTP\",\"service.beta.kubernetes.io/aws-load-balancer-nlb-target-type\":\"ip\",\"service.beta.kubernetes.io/aws-load-balancer-scheme\":\"internet-facing\"},\"labels\":{\"app.kubernetes.io/name\":\"devops-dashboard\"},\"name\":\"devops-dashboard\",\"namespace\":\"devops-dashboard\"},\"spec\":{\"loadBalancerClass\":\"eks.amazonaws.com/nlb\",\"ports\":[{\"name\":\"http\",\"port\":80,\"protocol\":\"TCP\",\"targetPort\":\"http\"}],\"selector\":{\"app.kubernetes.io/name\":\"devops-dashboard\"},\"type\":\"LoadBalancer\"}}\n",
+            "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true",
+            "service.beta.kubernetes.io/aws-load-balancer-healthcheck-path": "/actuator/health/readiness",
+            "service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol": "HTTP",
+            "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type": "ip",
+            "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        },
+        "creationTimestamp": "2026-10-12T09:18:14Z",
+        "finalizers": [
+            "service.eks.amazonaws.com/resources"
+        ],
+        "labels": {
+            "app.kubernetes.io/name": "devops-dashboard"
+        },
+        "name": "devops-dashboard",
+        "namespace": "devops-dashboard",
+        "resourceVersion": "8851",
+        "uid": "290520e7-faf0-4ed0-a8bc-ae36f72d8d01"
+    },
+    "spec": {
+        "allocateLoadBalancerNodePorts": true,
+        "clusterIP": "172.20.139.28",
+        "clusterIPs": [
+            "172.20.139.28"
+        ],
+        "externalTrafficPolicy": "Cluster",
+        "internalTrafficPolicy": "Cluster",
+        "ipFamilies": [
+            "IPv4"
+        ],
+        "ipFamilyPolicy": "SingleStack",
+        "loadBalancerClass": "eks.amazonaws.com/nlb",
+        "ports": [
+            {
+                "name": "http",
+                "nodePort": 32719,
+                "port": 80,
+                "protocol": "TCP",
+                "targetPort": "http"
+            }
+        ],
+        "selector": {
+            "app.kubernetes.io/name": "devops-dashboard"
+        },
+        "sessionAffinity": "None",
+        "type": "LoadBalancer"
+    },
+    "status": {
+        "loadBalancer": {
+            "ingress": [
+                {
+                    "hostname": "k8s-devopsda-devopsda-fb98dd518c-5089fdf68ed45b95.elb.ap-south-1.amazonaws.com"
+                }
+            ]
+        }
+    }
+}

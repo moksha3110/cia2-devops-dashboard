@@ -1,0 +1,1 @@
+﻿[{"name":"AWS_ACCOUNT_ID","value":"906555057481"},{"name":"AWS_REGION","value":"ap-south-1"},{"name":"AWS_ROLE_ARN","value":"arn:aws:iam::906555057481:role/cia2-github-deployer"},{"name":"DEPLOY_ENABLED","value":"true"},{"name":"EKS_CLUSTER_NAME","value":"cia2-devops-dashboard"}]

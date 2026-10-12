@@ -1,0 +1,22 @@
+﻿{
+    "Name": "cia2-eks",
+    "Status": "CREATE_COMPLETE",
+    "Outputs": [
+        {
+            "OutputKey": "VpcId",
+            "OutputValue": "vpc-06587d4825282010e"
+        },
+        {
+            "OutputKey": "NodeRoleArn",
+            "OutputValue": "arn:aws:iam::906555057481:role/cia2-eks-NodeRole-XTxSlb5JWyP0"
+        },
+        {
+            "OutputKey": "ClusterName",
+            "OutputValue": "cia2-devops-dashboard"
+        },
+        {
+            "OutputKey": "AdministratorRoleArn",
+            "OutputValue": "arn:aws:iam::906555057481:role/cia2-eks-AdministratorRole-ZJ7LVbZvU3yR"
+        }
+    ]
+}
