@@ -10,6 +10,8 @@ metadata:
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
     service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+    # A small demo may place both replicas in one AZ; route from either NLB zone.
+    service.beta.kubernetes.io/aws-load-balancer-attributes: load_balancing.cross_zone.enabled=true
     service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: HTTP
     service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: /actuator/health/readiness
 spec:
