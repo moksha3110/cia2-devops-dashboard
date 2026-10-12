@@ -15,6 +15,9 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Page
 from reportlab.graphics.shapes import Drawing, Rect, String, Line, Polygon
 from docx import Document
 from docx.shared import Inches, Pt, Mm
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 from PIL import Image as PILImage, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,18 +29,34 @@ styles.add(ParagraphStyle(name='BodyReport', fontName='Helvetica', fontSize=10, 
 styles.add(ParagraphStyle(name='CaptionReport', fontSize=8, leading=11, textColor=colors.HexColor('#475569'), spaceAfter=9))
 styles['Title'].fontSize = 23
 styles['Title'].leading = 28
+styles['Title'].textColor = colors.HexColor('#134e4a')
+styles['Title'].spaceAfter = 16
 styles['Heading1'].textColor = colors.HexColor('#0f766e')
+styles['Heading1'].spaceBefore = 8
+styles['Heading1'].spaceAfter = 12
 story = []
 doc = Document()
 section = doc.sections[0]
 section.page_width = Mm(210)
 section.page_height = Mm(297)
-section.header.paragraphs[0].text = 'CIA 2 | End-to-End Cloud CI/CD Pipeline'
+section.header.paragraphs[0].text = 'DEVOPS CIA 2 | Moksha | 23011102074'
 section.top_margin = Inches(.65)
 section.bottom_margin = Inches(.65)
 normal = doc.styles['Normal']
 normal.font.name = 'Calibri'
 normal.font.size = Pt(10)
+normal.paragraph_format.space_after = Pt(8)
+normal.paragraph_format.line_spacing = 1.15
+for style_name in ['Heading 1', 'Heading 2']:
+    doc.styles[style_name].paragraph_format.keep_with_next = True
+footer_p = section.footer.paragraphs[0]
+footer_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+footer_p.add_run('Moksha | IoT-B, 4th Year | Page ')
+field = OxmlElement('w:fldSimple')
+field.set(qn('w:instr'), 'PAGE')
+footer_p._p.append(field)
+doc.core_properties.author = 'Moksha'
+doc.core_properties.subject = 'DevOps CIA 2 | Roll number 23011102074 | IoT-B | 4th Year'
 markdown = []
 
 def p(text):
@@ -65,16 +84,23 @@ def image(name, caption, max_height=240):
 
 def table(rows, widths=None):
     cells = [[Paragraph(escape(str(c)), styles['CaptionReport']) for c in row] for row in rows]
-    t = Table(cells, colWidths=widths, hAlign='LEFT')
+    t = Table(cells, colWidths=widths, hAlign='LEFT', repeatRows=1)
     t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#e2e8f0')),
         ('GRID',(0,0),(-1,-1),.35,colors.HexColor('#cbd5e1')),('VALIGN',(0,0),(-1,-1),'TOP'),
-        ('LEFTPADDING',(0,0),(-1,-1),7),('RIGHTPADDING',(0,0),(-1,-1),7)]))
+        ('LEFTPADDING',(0,0),(-1,-1),7),('RIGHTPADDING',(0,0),(-1,-1),7),
+        ('TOPPADDING',(0,0),(-1,-1),5),('BOTTOMPADDING',(0,0),(-1,-1),5)]))
     story.extend([t, Spacer(1,10)])
     dt = doc.add_table(rows=0, cols=len(rows[0]))
     dt.style = 'Table Grid'
     for row in rows:
         for cell, text in zip(dt.add_row().cells, row):
             cell.text = str(text)
+    for cell in dt.rows[0].cells:
+        shading = OxmlElement('w:shd')
+        shading.set(qn('w:fill'), 'E2E8F0')
+        cell._tc.get_or_add_tcPr().append(shading)
+        for run in cell.paragraphs[0].runs:
+            run.bold = True
     markdown.append('\n| ' + ' | '.join(map(str,rows[0])) + ' |')
     markdown.append('| ' + ' | '.join('---' for _ in rows[0]) + ' |')
     markdown.extend(['| ' + ' | '.join(map(str,row)) + ' |' for row in rows[1:]])
@@ -88,7 +114,10 @@ def nextpage():
 story.append(Paragraph('Design and Implementation of an End-to-End Cloud-Based CI/CD Pipeline', styles['Title']))
 doc.add_heading('Design and Implementation of an End-to-End Cloud-Based CI/CD Pipeline', 0)
 markdown.append('# Design and Implementation of an End-to-End Cloud-Based CI/CD Pipeline\n')
-p('CIA 2 technical report | GitHub: moksha3110 | Evidence date: 12 October 2026 (IST)')
+table([['DEVOPS CIA 2', 'STUDENT DETAILS'],
+       ['Name', 'Moksha'], ['Roll number', '23011102074'],
+       ['Class / section', 'IoT-B'], ['Year', '4th Year']], [145,335])
+p('Technical report | Evidence date: 12 October 2026 (IST)')
 h('1. Problem definition and architecture')
 p('Manual compilation, testing, image creation and deployment are slow, inconsistent and difficult to reproduce. This implementation automates those operations for a Java web application: a push to main triggers validation, publishes a container image and updates a cloud-hosted Kubernetes Deployment. A successful run must prove both rollout readiness and the public application identity.')
 p('The application is a lightweight DevOps Deployment Dashboard. It displays version, environment, deployment message and Git commit SHA, making the change from v1 to v2 visible. AWS was selected as the permitted cloud provider; Amazon EKS hosts Kubernetes, while GitHub Actions orchestrates delivery and GHCR stores images.')
@@ -194,12 +223,14 @@ for label, url in [
 def footer(canvas, document):
     canvas.setFont('Helvetica',8)
     canvas.setFillColor(colors.HexColor('#64748b'))
-    canvas.drawString(42,25,'CIA 2 | Cloud CI/CD | 12 October 2026')
-    canvas.drawRightString(A4[0]-42,25,f'{document.page}')
+    canvas.setStrokeColor(colors.HexColor('#cbd5e1'))
+    canvas.line(42,38,A4[0]-42,38)
+    canvas.drawString(42,25,'Moksha | 23011102074 | IoT-B, 4th Year | DevOps CIA 2')
+    canvas.drawRightString(A4[0]-42,25,f'Page {document.page}')
 
 SimpleDocTemplate(str(OUT/'CIA2-Technical-Report.pdf'),pagesize=A4,
     rightMargin=42,leftMargin=42,topMargin=38,bottomMargin=42,
-    title='CIA 2 - End-to-End Cloud-Based CI/CD Pipeline',author='moksha3110').build(story,onFirstPage=footer,onLaterPages=footer)
+    title='DevOps CIA 2 - End-to-End Cloud-Based CI/CD Pipeline',author='Moksha').build(story,onFirstPage=footer,onLaterPages=footer)
 doc.save(OUT/'CIA2-Technical-Report.docx')
 (OUT/'CIA2-Technical-Report.md').write_text('\n'.join(markdown),encoding='utf-8')
 print('Generated PDF, editable DOCX and Markdown report in reports/.')

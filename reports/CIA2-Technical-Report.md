@@ -1,6 +1,14 @@
 # Design and Implementation of an End-to-End Cloud-Based CI/CD Pipeline
 
-CIA 2 technical report | GitHub: moksha3110 | Evidence date: 12 October 2026 (IST)
+
+| DEVOPS CIA 2 | STUDENT DETAILS |
+| --- | --- |
+| Name | Moksha |
+| Roll number | 23011102074 |
+| Class / section | IoT-B |
+| Year | 4th Year |
+
+Technical report | Evidence date: 12 October 2026 (IST)
 
 
 ## 1. Problem definition and architecture
