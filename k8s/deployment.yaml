@@ -56,11 +56,11 @@ spec:
             - name: APP_NAME
               value: DevOps Deployment Dashboard
             - name: APP_VERSION
-              value: v1
+              value: v2
             - name: APP_ENVIRONMENT
               value: aws-eks
             - name: DEPLOYMENT_MESSAGE
-              value: CIA 2 version 1 is running on AWS EKS.
+              value: CIA 2 version 2 arrived automatically through the CI/CD pipeline!
             - name: COMMIT_SHA
               value: supplied-by-workflow
           resources:
